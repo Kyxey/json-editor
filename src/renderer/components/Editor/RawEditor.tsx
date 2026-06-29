@@ -23,7 +23,7 @@ export const RawEditor: React.FC<RawEditorProps> = ({ content, isValid, errors, 
       .replace(/\b(true|false)\b/g, `<span style="color: ${COLOR_SCHEME.boolean}">$1</span>`)
       .replace(/\bnull\b/g, `<span style="color: ${COLOR_SCHEME.null}">null</span>`)
       .replace(/([{}[\]])/g, `<span style="color: ${COLOR_SCHEME.brace}">$1</span>`)
-      .replace(/([:,])/g, `<span style="color: ${COLOR_SCHEME.colon}">$1</span>`);
+      .replace(/((?<!color):|,)/g, `<span style="color: ${COLOR_SCHEME.colon}">$1</span>`);
   }, []);
 
   const handleScroll = (): void => {
