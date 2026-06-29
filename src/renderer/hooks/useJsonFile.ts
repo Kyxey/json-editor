@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { JsonArray, JsonFileState, JsonObject, JsonValue } from '../../types/json';
 import { validateJsonString, formatJsonString } from '../utils/jsonUtils';
 import { CONFIG } from '../constants/config';
