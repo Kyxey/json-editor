@@ -1,13 +1,27 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, nativeTheme } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { IPC_CHANNELS } from '../shared/ipc';
+import { IPC_CHANNELS } from './ipc';
+
+async function setupHotReload(): Promise<void> {
+  try {
+    const reloader = await import('electron-reloader');
+    reloader.default(module, {
+      debug: true,
+      watchRenderer: true,
+    });
+  } catch {
+    // electron-reloader not available in production
+  }
+}
 
 class JsonEditorApp {
   private mainWindow: BrowserWindow | null = null;
 
   public async initialize(): Promise<void> {
     await app.whenReady();
+    await setupHotReload();
+
     this.createWindow();
     this.setupIpcHandlers();
     this.setupMenu();
@@ -26,8 +40,6 @@ class JsonEditorApp {
   }
 
   private createWindow(): void {
-    const isMac = process.platform === 'darwin';
-
     this.mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -35,7 +47,7 @@ class JsonEditorApp {
       minHeight: 600,
       title: 'JSON Editor',
       backgroundColor: nativeTheme.shouldUseDarkColors ? '#1E1E1E' : '#FFFFFF',
-      titleBarStyle: isMac ? 'hiddenInset' : 'default',
+      titleBarStyle: 'default',
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
@@ -43,10 +55,11 @@ class JsonEditorApp {
       },
     });
 
-    void this.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
-
     if (process.env.NODE_ENV === 'development') {
+      void this.mainWindow.loadURL('http://localhost:3000');
       this.mainWindow.webContents.openDevTools();
+    } else {
+      void this.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
     }
 
     this.mainWindow.on('close', (event) => {

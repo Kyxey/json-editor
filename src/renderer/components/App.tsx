@@ -10,7 +10,7 @@ import { GuiEditor } from './Editor/GuiEditor';
 import { SchemaEditor } from './Schema/SchemaEditor';
 import { StatusBar } from './StatusBar/StatusBar';
 import { SaveDialog } from './Dialogs/SaveDialog';
-import { IPC_CHANNELS } from '../../shared/ipc';
+import { IPC_CHANNELS } from '../constants/ipcChannels';
 import type { SchemaDefinition } from '../../types/schema';
 
 export const App: React.FC = () => {

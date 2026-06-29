@@ -70,7 +70,7 @@
 .editor-textarea {
   color: var(--text-color);
   background: transparent;
-  z-index: 2;
+  z-index: 0;
   -webkit-text-fill-color: transparent;
   caret-color: var(--text-color);
 }

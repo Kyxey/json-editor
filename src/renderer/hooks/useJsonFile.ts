@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { JsonArray, JsonFileState, JsonObject, JsonValue } from '../../types/json';
 import { validateJsonString, formatJsonString } from '../utils/jsonUtils';
 import { CONFIG } from '../constants/config';
@@ -64,8 +64,12 @@ export function useJsonFile(): UseJsonFileReturn {
         error?: string;
       };
 
-      if (!result.success || !result.content) {
+      if (!result.success) {
         throw new Error(result.error || 'Failed to read file');
+      }
+
+      if (result.content === undefined) {
+        result.content = '';
       }
 
       const validation = validateContent(result.content);

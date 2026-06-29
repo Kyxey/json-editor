@@ -10,7 +10,13 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            configFile: 'tsconfig.json',
+            onlyCompileBundledFiles: true,
+          },
+        },
         exclude: /node_modules/,
       },
       {
@@ -21,6 +27,11 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      '@shared': path.resolve(__dirname, 'src/shared'),
+      '@renderer': path.resolve(__dirname, 'src/renderer'),
+      '@main': path.resolve(__dirname, 'src/main'),
+    },
   },
   output: {
     filename: 'renderer.js',
@@ -29,6 +40,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
+      filename: 'index.html',
     }),
   ],
 };
