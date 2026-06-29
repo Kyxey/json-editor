@@ -290,3 +290,136 @@
   font-size: 12px;
   cursor: pointer;
 }
+.tree-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+
+.tree-toggle-btn:hover {
+  background: var(--hover-bg);
+}
+
+.field-summary {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
+.field-type-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  background: var(--hover-bg);
+  border-radius: 3px;
+  margin-left: 8px;
+}
+
+.field-value-display {
+  margin-left: 8px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background 0.15s ease;
+  font-size: 13px;
+}
+
+.field-value-display:hover {
+  background: var(--hover-bg);
+}
+
+.field-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.field-input-inline {
+  padding: 3px 8px;
+  border: 1px solid var(--accent-color);
+  border-radius: 4px;
+  font-size: 13px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  width: 200px;
+}
+
+.save-btn-small {
+  padding: 3px 10px;
+  background: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cancel-btn-small {
+  padding: 3px 10px;
+  background: var(--hover-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.field-children {
+  margin-top: 8px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border-color);
+}
+
+.field-empty {
+  padding: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+  text-align: center;
+}
+
+.add-child-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  margin-top: 8px;
+  background: transparent;
+  color: var(--accent-color);
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.add-child-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-color);
+}
+
+.field-errors {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--error-bg);
+  border-radius: 4px;
+}
+
+.field-error-item {
+  font-size: 12px;
+  color: var(--error-color);
+  padding: 2px 0;
+}

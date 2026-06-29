@@ -17,6 +17,7 @@ async function setupHotReload(): Promise<void> {
 
 class JsonEditorApp {
   private mainWindow: BrowserWindow | null = null;
+  private isQuitting = false;
 
   public async initialize(): Promise<void> {
     await app.whenReady();
@@ -30,6 +31,10 @@ class JsonEditorApp {
       if (process.platform !== 'darwin') {
         app.quit();
       }
+    });
+
+    app.on('before-quit', () => {
+      this.isQuitting = true;
     });
 
     app.on('activate', () => {
@@ -63,8 +68,14 @@ class JsonEditorApp {
     }
 
     this.mainWindow.on('close', (event) => {
-      event.preventDefault();
-      this.mainWindow?.webContents.send(IPC_CHANNELS.APP_BEFORE_CLOSE);
+      if (!this.isQuitting) {
+        event.preventDefault();
+        this.mainWindow?.webContents.send(IPC_CHANNELS.APP_BEFORE_CLOSE);
+      }
+    });
+
+    this.mainWindow.on('closed', () => {
+      this.mainWindow = null;
     });
   }
 
@@ -146,6 +157,7 @@ class JsonEditorApp {
     });
 
     ipcMain.handle(IPC_CHANNELS.APP_CLOSE, () => {
+      this.isQuitting = true;
       this.mainWindow?.close();
     });
   }
