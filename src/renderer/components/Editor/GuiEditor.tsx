@@ -23,6 +23,7 @@ interface FieldEditorProps {
   validationErrors: string[];
   onUpdateValue: (path: string, newValue: JsonValue) => void;
   onDelete: (path: string) => void;
+  onAddChild: (parentPath: string) => void;
   depth: number;
 }
 
@@ -33,6 +34,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
   validationErrors,
   onUpdateValue,
   onDelete,
+  onAddChild,
   depth,
 }) => {
   const [isExpanded, setIsExpanded] = useState(depth < 2);
@@ -129,6 +131,10 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
     },
     [type, value, path, onUpdateValue],
   );
+
+  const handleAddChildClick = (): void => {
+    onAddChild(path);
+  };
 
   const isExpandable = type === 'object' || type === 'array';
   const childEntries: [string, JsonValue][] = [];
@@ -232,20 +238,14 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                 validationErrors={validationErrors}
                 onUpdateValue={handleUpdateChild}
                 onDelete={handleDeleteChild}
+                onAddChild={onAddChild}
                 depth={depth + 1}
               />
             ))
           ) : (
             <div className="field-empty">{type === 'object' ? 'Empty object' : 'Empty array'}</div>
           )}
-          <button
-            className="add-child-btn"
-            onClick={() => {
-              const dialog = document.createElement('div');
-              dialog.className = 'temp-dialog';
-              document.body.appendChild(dialog);
-            }}
-          >
+          <button className="add-child-btn" onClick={handleAddChildClick}>
             <Plus size={14} />
             {type === 'object' ? 'Add property' : 'Add item'}
           </button>
@@ -273,7 +273,7 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
   isDark,
 }) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showRootAddDialog, setShowRootAddDialog] = useState(false);
+  const [addDialogParentPath, setAddDialogParentPath] = useState<string | null>(null);
 
   const handleDeleteRoot = useCallback(
     (path: string): void => {
@@ -314,28 +314,62 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
     [content, onUpdate],
   );
 
+  const handleAddChild = useCallback((parentPath: string): void => {
+    setAddDialogParentPath(parentPath);
+    setShowAddDialog(true);
+  }, []);
+
   const handleAddEntry = useCallback(
-    (key: string, value: JsonValue, type: JsonFieldType): void => {
-      if (!content) {
-        if (type === JsonFieldType.ARRAY) {
-          onUpdate([value]);
-        } else {
-          const newContent: JsonObject = { [key]: value };
+    (key: string, value: JsonValue, _type: JsonFieldType): void => {
+      if (addDialogParentPath) {
+        const pathParts = addDialogParentPath.split('.');
+        let current = content;
+
+        for (let i = 0; i < pathParts.length; i++) {
+          if (!current) break;
+          const part = pathParts[i];
+          if (typeof current === 'object' && !Array.isArray(current)) {
+            current = (current as JsonObject)[part];
+          } else if (Array.isArray(current)) {
+            const index = parseInt(part, 10);
+            if (!isNaN(index)) {
+              current = current[index];
+            }
+          }
+        }
+
+        if (current && typeof current === 'object' && !Array.isArray(current)) {
+          const newObj = { ...(current as JsonObject), [key]: value };
+          handleUpdateRoot(addDialogParentPath, newObj);
+        } else if (Array.isArray(current)) {
+          const newArr = [...current, value];
+          handleUpdateRoot(addDialogParentPath, newArr);
+        }
+      } else {
+        if (!content) {
+          onUpdate({ [key]: value });
+          return;
+        }
+
+        if (typeof content === 'object' && !Array.isArray(content)) {
+          const newContent = { ...(content as JsonObject), [key]: value };
+          onUpdate(newContent);
+        } else if (Array.isArray(content)) {
+          const newContent = [...content, value];
           onUpdate(newContent);
         }
-        return;
       }
 
-      if (typeof content === 'object' && !Array.isArray(content)) {
-        const newContent = { ...(content as JsonObject), [key]: value };
-        onUpdate(newContent);
-      } else if (Array.isArray(content)) {
-        const newContent = [...content, value];
-        onUpdate(newContent);
-      }
+      setShowAddDialog(false);
+      setAddDialogParentPath(null);
     },
-    [content, onUpdate],
+    [content, addDialogParentPath, onUpdate, handleUpdateRoot],
   );
+
+  const handleDialogClose = useCallback((): void => {
+    setShowAddDialog(false);
+    setAddDialogParentPath(null);
+  }, []);
 
   const rootType = content === null ? null : getJsonFieldType(content);
   const isRootExpandable = rootType === 'object' || rootType === 'array';
@@ -355,7 +389,7 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
     <div className="editor-container">
       <div className="editor-header">
         <span className="editor-title">{WORDINGS.editor.gui}</span>
-        <button className="add-button" onClick={() => setShowRootAddDialog(true)}>
+        <button className="add-button" onClick={() => handleAddChild('')}>
           <Plus size={16} />
           {rootType === 'array' ? 'Add Item' : WORDINGS.toolbar.addEntry}
         </button>
@@ -365,7 +399,7 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
         {content === null ? (
           <div className="gui-empty">
             <p>{WORDINGS.editor.noFile}</p>
-            <button className="primary-button" onClick={() => setShowRootAddDialog(true)}>
+            <button className="primary-button" onClick={() => handleAddChild('')}>
               {WORDINGS.toolbar.addEntry}
             </button>
           </div>
@@ -378,7 +412,7 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
             {rootEntries.length === 0 && isRootExpandable ? (
               <div className="gui-empty">
                 <p>{rootType === 'object' ? 'Empty object' : 'Empty array'}</p>
-                <button className="primary-button" onClick={() => setShowRootAddDialog(true)}>
+                <button className="primary-button" onClick={() => handleAddChild('')}>
                   {rootType === 'object' ? 'Add property' : 'Add item'}
                 </button>
               </div>
@@ -392,6 +426,7 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
                   validationErrors={validationErrors}
                   onUpdateValue={handleUpdateRoot}
                   onDelete={handleDeleteRoot}
+                  onAddChild={handleAddChild}
                   depth={0}
                 />
               ))
@@ -400,20 +435,11 @@ export const GuiEditor: React.FC<GuiEditorProps> = ({
         )}
       </div>
 
-      {showRootAddDialog && (
-        <AddEntryDialog
-          schema={schema}
-          onAdd={handleAddEntry}
-          onClose={() => setShowRootAddDialog(false)}
-          isDark={isDark}
-        />
-      )}
-
       {showAddDialog && (
         <AddEntryDialog
           schema={schema}
           onAdd={handleAddEntry}
-          onClose={() => setShowAddDialog(false)}
+          onClose={handleDialogClose}
           isDark={isDark}
         />
       )}
