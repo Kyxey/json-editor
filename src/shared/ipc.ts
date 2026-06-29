@@ -12,6 +12,11 @@ export const IPC_CHANNELS = {
   APP_CLOSE: 'app:close',
   APP_MINIMIZE: 'app:minimize',
   APP_MAXIMIZE: 'app:maximize',
+  APP_BEFORE_CLOSE: 'app:before-close',
+  MENU_NEW: 'menu:new',
+  MENU_OPEN: 'menu:open',
+  MENU_SAVE: 'menu:save',
+  MENU_SAVE_AS: 'menu:save-as',
   CONTEXT_MENU: 'context:menu',
 } as const;
 

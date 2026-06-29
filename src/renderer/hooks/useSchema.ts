@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { SchemaDefinition } from '../types/schema';
-import type { JsonValue } from '../types/json';
+import type { SchemaDefinition } from '../../types/schema';
+import type { JsonValue } from '../../types/json';
 import { validateValueAgainstSchema } from '../utils/schemaUtils';
 import { getSchemaFileName } from '../utils/fileUtils';
 
@@ -21,7 +21,10 @@ export function useSchema(): UseSchemaReturn {
 
   const loadSchema = useCallback(async (jsonFilePath: string): Promise<void> => {
     const schemaFileName = getSchemaFileName(jsonFilePath);
-    const exists = await window.electron.ipcRenderer.invoke('file:exists', schemaFileName) as boolean;
+    const exists = (await window.electron.ipcRenderer.invoke(
+      'file:exists',
+      schemaFileName,
+    )) as boolean;
 
     if (!exists) {
       setSchema(null);
@@ -29,7 +32,7 @@ export function useSchema(): UseSchemaReturn {
       return;
     }
 
-    const result = await window.electron.ipcRenderer.invoke('file:read', schemaFileName) as {
+    const result = (await window.electron.ipcRenderer.invoke('file:read', schemaFileName)) as {
       success: boolean;
       content?: string;
     };
@@ -50,16 +53,19 @@ export function useSchema(): UseSchemaReturn {
     setSchema(definition);
   }, []);
 
-  const validateContent = useCallback((content: JsonValue): string[] => {
-    if (!schema) {
-      setValidationErrors([]);
-      return [];
-    }
+  const validateContent = useCallback(
+    (content: JsonValue): string[] => {
+      if (!schema) {
+        setValidationErrors([]);
+        return [];
+      }
 
-    const errors = validateValueAgainstSchema(content, schema, '');
-    setValidationErrors(errors);
-    return errors;
-  }, [schema]);
+      const errors = validateValueAgainstSchema(content, schema, '');
+      setValidationErrors(errors);
+      return errors;
+    },
+    [schema],
+  );
 
   const clearSchema = useCallback((): void => {
     setSchema(null);

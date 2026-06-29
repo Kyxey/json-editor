@@ -1,7 +1,7 @@
 import React from 'react';
 import { Circle, AlertCircle, CheckCircle, FileJson } from 'lucide-react';
 import { WORDINGS } from '../../constants/wordings';
-import type { ValidationError } from '../../types/json';
+import type { ValidationError } from '../../../types/json';
 import './StatusBar.css';
 
 interface StatusBarProps {
@@ -27,12 +27,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
     <div className="status-bar">
       <div className="status-left">
         <FileJson size={14} />
-        <span className="status-file">
-          {filePath || WORDINGS.editor.noFile}
-        </span>
-        {isModified && (
-          <span className="status-modified">{WORDINGS.editor.modified}</span>
-        )}
+        <span className="status-file">{filePath || WORDINGS.editor.noFile}</span>
+        {isModified && <span className="status-modified">{WORDINGS.editor.modified}</span>}
       </div>
 
       <div className="status-right">
@@ -55,11 +51,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           )}
         </span>
 
-        {hasSchema && (
-          <span className="status-item schema-indicator">
-            Schema Active
-          </span>
-        )}
+        {hasSchema && <span className="status-item schema-indicator">Schema Active</span>}
       </div>
     </div>
   );

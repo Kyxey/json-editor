@@ -1,5 +1,5 @@
-import type { JsonValue, JsonObject, JsonFieldType, ValidationError } from '../types/json';
-import { JsonFieldType as JFT } from '../types/json';
+import type { JsonValue, JsonObject, JsonFieldType, ValidationError } from '../../types/json';
+import { JsonFieldType as JFT } from '../../types/json';
 
 export function getJsonFieldType(value: JsonValue): JsonFieldType {
   if (value === null) return JFT.NULL;
@@ -22,20 +22,24 @@ export function validateJsonString(content: string): ValidationError[] {
       const lines = content.substring(0, position).split('\n');
       const line = lines.length;
       const column = lines[lines.length - 1].length + 1;
-      
-      return [{
-        path: '',
-        message: error.message,
-        line,
-        column,
-      }];
+
+      return [
+        {
+          path: '',
+          message: error.message,
+          line,
+          column,
+        },
+      ];
     }
-    return [{
-      path: '',
-      message: 'Unknown JSON parsing error',
-      line: 1,
-      column: 1,
-    }];
+    return [
+      {
+        path: '',
+        message: 'Unknown JSON parsing error',
+        line: 1,
+        column: 1,
+      },
+    ];
   }
 }
 
@@ -52,12 +56,15 @@ export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj)) as T;
 }
 
-export function getValueByPath(obj: JsonObject | JsonValue[], path: string[]): JsonValue | undefined {
+export function getValueByPath(
+  obj: JsonObject | JsonValue[],
+  path: string[],
+): JsonValue | undefined {
   let current: JsonValue = obj;
-  
+
   for (const key of path) {
     if (current === null || current === undefined) return undefined;
-    
+
     if (Array.isArray(current)) {
       const index = parseInt(key, 10);
       if (isNaN(index) || index < 0 || index >= current.length) return undefined;
@@ -69,7 +76,7 @@ export function getValueByPath(obj: JsonObject | JsonValue[], path: string[]): J
       return undefined;
     }
   }
-  
+
   return current;
 }
 
@@ -79,10 +86,10 @@ export function setValueByPath(
   value: JsonValue,
 ): void {
   let current: JsonValue = obj;
-  
+
   for (let i = 0; i < path.length - 1; i++) {
     const key = path[i];
-    
+
     if (Array.isArray(current)) {
       const index = parseInt(key, 10);
       if (isNaN(index)) return;
@@ -93,9 +100,9 @@ export function setValueByPath(
       return;
     }
   }
-  
+
   const lastKey = path[path.length - 1];
-  
+
   if (Array.isArray(current)) {
     const index = parseInt(lastKey, 10);
     if (!isNaN(index)) {

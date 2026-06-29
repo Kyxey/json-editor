@@ -51,7 +51,7 @@ class JsonEditorApp {
 
     this.mainWindow.on('close', (event) => {
       event.preventDefault();
-      this.mainWindow?.webContents.send('app:before-close');
+      this.mainWindow?.webContents.send(IPC_CHANNELS.APP_BEFORE_CLOSE);
     });
   }
 
@@ -159,22 +159,22 @@ class JsonEditorApp {
           {
             label: 'New',
             accelerator: isMac ? 'Cmd+N' : 'Ctrl+N',
-            click: () => this.mainWindow?.webContents.send('menu:new'),
+            click: () => this.mainWindow?.webContents.send(IPC_CHANNELS.MENU_NEW),
           },
           {
             label: 'Open',
             accelerator: isMac ? 'Cmd+O' : 'Ctrl+O',
-            click: () => this.mainWindow?.webContents.send('menu:open'),
+            click: () => this.mainWindow?.webContents.send(IPC_CHANNELS.MENU_OPEN),
           },
           {
             label: 'Save',
             accelerator: isMac ? 'Cmd+S' : 'Ctrl+S',
-            click: () => this.mainWindow?.webContents.send('menu:save'),
+            click: () => this.mainWindow?.webContents.send(IPC_CHANNELS.MENU_SAVE),
           },
           {
             label: 'Save As',
             accelerator: isMac ? 'Cmd+Shift+S' : 'Ctrl+Shift+S',
-            click: () => this.mainWindow?.webContents.send('menu:save-as'),
+            click: () => this.mainWindow?.webContents.send(IPC_CHANNELS.MENU_SAVE_AS),
           },
           { type: 'separator' },
           isMac ? { role: 'close' } : { role: 'quit' },

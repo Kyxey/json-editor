@@ -1,5 +1,5 @@
-import type { SchemaDefinition } from '../types/schema';
-import type { JsonValue, JsonFieldType } from '../types/json';
+import type { SchemaDefinition } from '../../types/schema';
+import { JsonValue, JsonFieldType } from '../../types/json';
 
 export function createDefaultSchema(type: JsonFieldType): SchemaDefinition {
   const baseSchema: SchemaDefinition = { type };
@@ -9,7 +9,7 @@ export function createDefaultSchema(type: JsonFieldType): SchemaDefinition {
       baseSchema.properties = {};
       break;
     case 'array':
-      baseSchema.items = { type: 'string' };
+      baseSchema.items = { type: JsonFieldType.STRING };
       break;
   }
 
@@ -92,7 +92,7 @@ export function validateValueAgainstSchema(
             }
           }
         }
-        
+
         for (const [key, propSchema] of Object.entries(schema.properties)) {
           if (key in value) {
             const nestedErrors = validateValueAgainstSchema(
@@ -111,11 +111,7 @@ export function validateValueAgainstSchema(
         errors.push(`${path}: Expected array`);
       } else if (schema.items) {
         value.forEach((item, index) => {
-          const nestedErrors = validateValueAgainstSchema(
-            item,
-            schema.items!,
-            `${path}[${index}]`,
-          );
+          const nestedErrors = validateValueAgainstSchema(item, schema.items!, `${path}[${index}]`);
           errors.push(...nestedErrors);
         });
       }

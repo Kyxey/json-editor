@@ -1,4 +1,4 @@
-import type { ValidationError } from '../types/json';
+import type { ValidationError } from '../../types/json';
 
 export function createValidationError(
   path: string,

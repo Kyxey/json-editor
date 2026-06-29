@@ -10,6 +10,7 @@ import { GuiEditor } from './Editor/GuiEditor';
 import { SchemaEditor } from './Schema/SchemaEditor';
 import { StatusBar } from './StatusBar/StatusBar';
 import { SaveDialog } from './Dialogs/SaveDialog';
+import { IPC_CHANNELS } from '../../shared/ipc';
 import type { SchemaDefinition } from '../../types/schema';
 
 export const App: React.FC = () => {
@@ -27,7 +28,8 @@ export const App: React.FC = () => {
   const handleOpenFile = useCallback(async (): Promise<void> => {
     if (fileState.isModified) {
       setPendingAction(() => async () => {
-        const filePath = (await window.electron.ipcRenderer.invoke('dialog:open')) as string | null;
+        const filePath = (await window.electron.ipcRenderer.invoke(IPC_CHANNELS.DIALOG_OPEN)) as
+          string | null;
         if (filePath) {
           await openFile(filePath);
           await loadSchema(filePath);
@@ -37,7 +39,8 @@ export const App: React.FC = () => {
       return;
     }
 
-    const filePath = (await window.electron.ipcRenderer.invoke('dialog:open')) as string | null;
+    const filePath = (await window.electron.ipcRenderer.invoke(IPC_CHANNELS.DIALOG_OPEN)) as
+      string | null;
     if (filePath) {
       await openFile(filePath);
       await loadSchema(filePath);
@@ -53,7 +56,8 @@ export const App: React.FC = () => {
   }, [fileState.path, saveFile]);
 
   const handleSaveAs = useCallback(async (): Promise<void> => {
-    const filePath = (await window.electron.ipcRenderer.invoke('dialog:save')) as string | null;
+    const filePath = (await window.electron.ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE)) as
+      string | null;
     if (filePath) {
       await saveFileAs(filePath);
     }
@@ -103,37 +107,42 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    window.electron.ipcRenderer.on('menu:new', () => handleNewFile());
-    window.electron.ipcRenderer.on('menu:open', () => {
+    window.electron.ipcRenderer.on(IPC_CHANNELS.MENU_NEW, () => {
+      handleNewFile();
+    });
+
+    window.electron.ipcRenderer.on(IPC_CHANNELS.MENU_OPEN, () => {
       void handleOpenFile();
     });
-    window.electron.ipcRenderer.on('menu:save', () => {
+
+    window.electron.ipcRenderer.on(IPC_CHANNELS.MENU_SAVE, () => {
       void handleSave();
     });
-    window.electron.ipcRenderer.on('menu:save-as', () => {
+
+    window.electron.ipcRenderer.on(IPC_CHANNELS.MENU_SAVE_AS, () => {
       void handleSaveAs();
     });
 
-    window.electron.ipcRenderer.on('app:before-close', () => {
+    window.electron.ipcRenderer.on(IPC_CHANNELS.APP_BEFORE_CLOSE, () => {
       if (fileState.isModified) {
         setPendingAction(() => async () => {
-          await window.electron.ipcRenderer.invoke('app:close');
+          await window.electron.ipcRenderer.invoke(IPC_CHANNELS.APP_CLOSE);
         });
         setShowSaveDialog(true);
       } else {
-        void window.electron.ipcRenderer.invoke('app:close');
+        void window.electron.ipcRenderer.invoke(IPC_CHANNELS.APP_CLOSE);
       }
     });
 
     return () => {
-      window.electron.ipcRenderer.removeListener('menu:new', handleNewFile);
-      window.electron.ipcRenderer.removeListener('menu:open', () => {
+      window.electron.ipcRenderer.removeListener(IPC_CHANNELS.MENU_NEW, handleNewFile);
+      window.electron.ipcRenderer.removeListener(IPC_CHANNELS.MENU_OPEN, () => {
         void handleOpenFile();
       });
-      window.electron.ipcRenderer.removeListener('menu:save', () => {
+      window.electron.ipcRenderer.removeListener(IPC_CHANNELS.MENU_SAVE, () => {
         void handleSave();
       });
-      window.electron.ipcRenderer.removeListener('menu:save-as', () => {
+      window.electron.ipcRenderer.removeListener(IPC_CHANNELS.MENU_SAVE_AS, () => {
         void handleSaveAs();
       });
     };
