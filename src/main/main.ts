@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, nativeTheme } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { IPC_CHANNELS, IpcChannel } from '../shared/ipc';
+import { IPC_CHANNELS } from '../shared/ipc';
 
 class JsonEditorApp {
   private mainWindow: BrowserWindow | null = null;
@@ -43,7 +43,7 @@ class JsonEditorApp {
       },
     });
 
-    this.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    void this.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
     if (process.env.NODE_ENV === 'development') {
       this.mainWindow.webContents.openDevTools();

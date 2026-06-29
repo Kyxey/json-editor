@@ -1,0 +1,136 @@
+:root {
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    sans-serif;
+  --mono-font: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', monospace;
+}
+
+[data-theme='light'] {
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --hover-bg: #f1f3f5;
+  --active-bg: #e9ecef;
+  --toolbar-bg: #f8f9fa;
+  --sidebar-bg: #f8f9fa;
+  --editor-bg: #ffffff;
+  --status-bg: #f8f9fa;
+  --dialog-bg: #ffffff;
+  --card-bg: #f8f9fa;
+  --input-bg: #ffffff;
+  --accent-color: #228be6;
+  --accent-bg: #e7f5ff;
+  --success-color: #2f9e44;
+  --success-bg: #ebfbee;
+  --error-color: #e03131;
+  --error-bg: #fff5f5;
+  --warning-color: #f08c00;
+  --warning-bg: #fff9db;
+}
+
+[data-theme='dark'] {
+  --bg-color: #1e1e1e;
+  --text-color: #e1e4e8;
+  --text-secondary: #8b949e;
+  --border-color: #30363d;
+  --hover-bg: #30363d;
+  --active-bg: #444c56;
+  --toolbar-bg: #252526;
+  --sidebar-bg: #252526;
+  --editor-bg: #1e1e1e;
+  --status-bg: #252526;
+  --dialog-bg: #252526;
+  --card-bg: #2d333b;
+  --input-bg: #2d333b;
+  --accent-color: #58a6ff;
+  --accent-bg: #1f2937;
+  --success-color: #3fb950;
+  --success-bg: #1b2b1f;
+  --error-color: #f85149;
+  --error-bg: #2d1518;
+  --warning-color: #d29922;
+  --warning-bg: #2d2414;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--text-color);
+  background: var(--bg-color);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-area {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+::selection {
+  background: var(--accent-bg);
+  color: var(--text-color);
+}
+
+[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir='rtl'] .toolbar-group:first-child {
+  order: 2;
+}
+
+[dir='rtl'] .toolbar-right {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir='rtl'] .dialog-footer {
+  flex-direction: row-reverse;
+}

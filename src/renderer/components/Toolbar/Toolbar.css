@@ -1,0 +1,63 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  gap: 8px;
+  height: 48px;
+  -webkit-app-region: drag;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-right {
+  margin-left: auto;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  -webkit-app-region: no-drag;
+}
+
+.toolbar-button:hover {
+  background: var(--hover-bg);
+}
+
+.toolbar-button.active {
+  background: var(--active-bg);
+  color: var(--accent-color);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbar-label {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .toolbar-label {
+    display: none;
+  }
+
+  .toolbar-button {
+    padding: 6px;
+  }
+}

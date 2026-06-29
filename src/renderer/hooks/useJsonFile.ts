@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import type { JsonFileState, JsonValue } from '../types/json';
-import { validateJsonString, formatJsonString, deepClone } from '../utils/jsonUtils';
+import type { JsonArray, JsonFileState, JsonObject, JsonValue } from '../../types/json';
+import { validateJsonString, formatJsonString } from '../utils/jsonUtils';
 import { CONFIG } from '../constants/config';
 
 interface UseJsonFileReturn {
@@ -27,55 +27,61 @@ export function useJsonFile(): UseJsonFileReturn {
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
 
-  const validateContent = useCallback((content: string): Pick<JsonFileState, 'isValid' | 'errors' | 'content'> => {
-    const errors = validateJsonString(content);
-    if (errors.length > 0) {
-      return {
-        isValid: false,
-        errors,
-        content: null,
+  const validateContent = useCallback(
+    (content: string): Pick<JsonFileState, 'isValid' | 'errors' | 'content'> => {
+      const errors = validateJsonString(content);
+      if (errors.length > 0) {
+        return {
+          isValid: false,
+          errors,
+          content: null,
+        };
+      }
+
+      try {
+        const parsed = JSON.parse(content) as JsonValue;
+        return {
+          isValid: true,
+          errors: [],
+          content: parsed as JsonObject | JsonArray | null,
+        };
+      } catch {
+        return {
+          isValid: false,
+          errors: [{ path: '', message: 'Failed to parse JSON', line: 1, column: 1 }],
+          content: null,
+        };
+      }
+    },
+    [],
+  );
+
+  const openFile = useCallback(
+    async (filePath: string): Promise<void> => {
+      const result = (await window.electron.ipcRenderer.invoke('file:read', filePath)) as {
+        success: boolean;
+        content?: string;
+        error?: string;
       };
-    }
-    
-    try {
-      const parsed = JSON.parse(content) as JsonValue;
-      return {
-        isValid: true,
-        errors: [],
-        content: parsed,
-      };
-    } catch {
-      return {
-        isValid: false,
-        errors: [{ path: '', message: 'Failed to parse JSON', line: 1, column: 1 }],
-        content: null,
-      };
-    }
-  }, []);
 
-  const openFile = useCallback(async (filePath: string): Promise<void> => {
-    const result = await window.electron.ipcRenderer.invoke('file:read', filePath) as {
-      success: boolean;
-      content?: string;
-      error?: string;
-    };
+      if (!result.success || !result.content) {
+        throw new Error(result.error || 'Failed to read file');
+      }
 
-    if (!result.success || !result.content) {
-      throw new Error(result.error || 'Failed to read file');
-    }
+      const validation = validateContent(result.content);
 
-    const validation = validateContent(result.content);
+      setFileState({
+        path: filePath,
+        ...validation,
+        rawContent: result.content,
+        isModified: false,
+      });
 
-    setFileState({
-      path: filePath,
-      ...validation,
-      rawContent: result.content,
-      isModified: false,
-    });
-
-    undoStack.current = [result.content];
-    redoStack.current = [];
-  }, [validateContent]);
+      undoStack.current = [result.content];
+      redoStack.current = [];
+    },
+    [validateContent],
+  );
 
   const saveFile = useCallback(async (): Promise<void> => {
     if (!fileState.path) {
@@ -83,22 +89,25 @@ export function useJsonFile(): UseJsonFileReturn {
     }
 
     await window.electron.ipcRenderer.invoke('file:write', fileState.path, fileState.rawContent);
-    
+
     setFileState((prev) => ({
       ...prev,
       isModified: false,
     }));
   }, [fileState.path, fileState.rawContent]);
 
-  const saveFileAs = useCallback(async (filePath: string): Promise<void> => {
-    await window.electron.ipcRenderer.invoke('file:write', filePath, fileState.rawContent);
-    
-    setFileState((prev) => ({
-      ...prev,
-      path: filePath,
-      isModified: false,
-    }));
-  }, [fileState.rawContent]);
+  const saveFileAs = useCallback(
+    async (filePath: string): Promise<void> => {
+      await window.electron.ipcRenderer.invoke('file:write', filePath, fileState.rawContent);
+
+      setFileState((prev) => ({
+        ...prev,
+        path: filePath,
+        isModified: false,
+      }));
+    },
+    [fileState.rawContent],
+  );
 
   const newFile = useCallback((): void => {
     setFileState({
@@ -114,34 +123,40 @@ export function useJsonFile(): UseJsonFileReturn {
     redoStack.current = [];
   }, []);
 
-  const updateContent = useCallback((newContent: string): void => {
-    const formatted = formatJsonString(newContent);
-    const validation = validateContent(formatted);
+  const updateContent = useCallback(
+    (newContent: string): void => {
+      const formatted = formatJsonString(newContent);
+      const validation = validateContent(formatted);
 
-    setFileState((prev) => {
-      if (prev.rawContent === formatted) {
-        return prev;
-      }
+      setFileState((prev) => {
+        if (prev.rawContent === formatted) {
+          return prev;
+        }
 
-      if (undoStack.current.length >= CONFIG.maxUndoHistory) {
-        undoStack.current.shift();
-      }
-      undoStack.current.push(formatted);
-      redoStack.current = [];
+        if (undoStack.current.length >= CONFIG.maxUndoHistory) {
+          undoStack.current.shift();
+        }
+        undoStack.current.push(formatted);
+        redoStack.current = [];
 
-      return {
-        ...prev,
-        ...validation,
-        rawContent: formatted,
-        isModified: true,
-      };
-    });
-  }, [validateContent]);
+        return {
+          ...prev,
+          ...validation,
+          rawContent: formatted,
+          isModified: true,
+        };
+      });
+    },
+    [validateContent],
+  );
 
-  const updateParsedContent = useCallback((newParsed: JsonValue): void => {
-    const formatted = JSON.stringify(newParsed, null, 2);
-    updateContent(formatted);
-  }, [updateContent]);
+  const updateParsedContent = useCallback(
+    (newParsed: JsonValue): void => {
+      const formatted = JSON.stringify(newParsed, null, 2);
+      updateContent(formatted);
+    },
+    [updateContent],
+  );
 
   const markAsSaved = useCallback((): void => {
     setFileState((prev) => ({

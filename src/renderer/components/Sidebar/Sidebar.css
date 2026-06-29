@@ -1,0 +1,93 @@
+.sidebar {
+  width: 300px;
+  min-width: 250px;
+  max-width: 500px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.sidebar-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.sidebar-badge.error {
+  background: var(--error-bg);
+  color: var(--error-color);
+}
+
+.sidebar-badge.success {
+  background: var(--success-bg);
+  color: var(--success-color);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.sidebar-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.sidebar-errors {
+  border-top: 1px solid var(--border-color);
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.errors-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--error-color);
+  margin: 0 0 8px 0;
+}
+
+.errors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.error-item {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.error-position {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.error-message {
+  color: var(--error-color);
+}

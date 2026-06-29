@@ -1,0 +1,58 @@
+.json-tree {
+  font-size: 13px;
+  user-select: none;
+}
+
+.json-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.json-tree-item:hover {
+  background: var(--hover-bg);
+}
+
+.tree-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.tree-key {
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.tree-key::after {
+  content: ':';
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+.tree-value {
+  margin-left: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-type {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.tree-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 12px;
+  padding: 4px 6px;
+}

@@ -10,28 +10,13 @@ import { GuiEditor } from './Editor/GuiEditor';
 import { SchemaEditor } from './Schema/SchemaEditor';
 import { StatusBar } from './StatusBar/StatusBar';
 import { SaveDialog } from './Dialogs/SaveDialog';
-import { WORDINGS } from '../constants/wordings';
-import type { JsonValue } from '../types/json';
-import type { SchemaDefinition } from '../types/schema';
+import type { SchemaDefinition } from '../../types/schema';
 
 export const App: React.FC = () => {
-  const { theme, toggleTheme, isDark } = useTheme();
-  const {
-    fileState,
-    openFile,
-    saveFile,
-    saveFileAs,
-    newFile,
-    updateContent,
-    updateParsedContent,
-  } = useJsonFile();
-  const {
-    schema,
-    validationErrors,
-    loadSchema,
-    updateSchema,
-    validateContent,
-  } = useSchema();
+  const { toggleTheme, isDark } = useTheme();
+  const { fileState, openFile, saveFile, saveFileAs, newFile, updateContent, updateParsedContent } =
+    useJsonFile();
+  const { schema, validationErrors, loadSchema, updateSchema, validateContent } = useSchema();
 
   const [activeView, setActiveView] = useState<'raw' | 'gui'>('gui');
   const [showSchemaEditor, setShowSchemaEditor] = useState(false);
@@ -42,7 +27,7 @@ export const App: React.FC = () => {
   const handleOpenFile = useCallback(async (): Promise<void> => {
     if (fileState.isModified) {
       setPendingAction(() => async () => {
-        const filePath = await window.electron.ipcRenderer.invoke('dialog:open') as string | null;
+        const filePath = (await window.electron.ipcRenderer.invoke('dialog:open')) as string | null;
         if (filePath) {
           await openFile(filePath);
           await loadSchema(filePath);
@@ -52,7 +37,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    const filePath = await window.electron.ipcRenderer.invoke('dialog:open') as string | null;
+    const filePath = (await window.electron.ipcRenderer.invoke('dialog:open')) as string | null;
     if (filePath) {
       await openFile(filePath);
       await loadSchema(filePath);
@@ -68,7 +53,7 @@ export const App: React.FC = () => {
   }, [fileState.path, saveFile]);
 
   const handleSaveAs = useCallback(async (): Promise<void> => {
-    const filePath = await window.electron.ipcRenderer.invoke('dialog:save') as string | null;
+    const filePath = (await window.electron.ipcRenderer.invoke('dialog:save')) as string | null;
     if (filePath) {
       await saveFileAs(filePath);
     }
@@ -107,19 +92,28 @@ export const App: React.FC = () => {
     setPendingAction(null);
   }, []);
 
-  const handleSchemaUpdate = useCallback((definition: SchemaDefinition): void => {
-    updateSchema(definition);
-    if (fileState.content) {
-      validateContent(fileState.content);
-    }
-  }, [updateSchema, fileState.content, validateContent]);
+  const handleSchemaUpdate = useCallback(
+    (definition: SchemaDefinition): void => {
+      updateSchema(definition);
+      if (fileState.content) {
+        validateContent(fileState.content);
+      }
+    },
+    [updateSchema, fileState.content, validateContent],
+  );
 
   useEffect(() => {
     window.electron.ipcRenderer.on('menu:new', () => handleNewFile());
-    window.electron.ipcRenderer.on('menu:open', () => { void handleOpenFile(); });
-    window.electron.ipcRenderer.on('menu:save', () => { void handleSave(); });
-    window.electron.ipcRenderer.on('menu:save-as', () => { void handleSaveAs(); });
-    
+    window.electron.ipcRenderer.on('menu:open', () => {
+      void handleOpenFile();
+    });
+    window.electron.ipcRenderer.on('menu:save', () => {
+      void handleSave();
+    });
+    window.electron.ipcRenderer.on('menu:save-as', () => {
+      void handleSaveAs();
+    });
+
     window.electron.ipcRenderer.on('app:before-close', () => {
       if (fileState.isModified) {
         setPendingAction(() => async () => {
@@ -133,16 +127,28 @@ export const App: React.FC = () => {
 
     return () => {
       window.electron.ipcRenderer.removeListener('menu:new', handleNewFile);
-      window.electron.ipcRenderer.removeListener('menu:open', () => { void handleOpenFile(); });
-      window.electron.ipcRenderer.removeListener('menu:save', () => { void handleSave(); });
-      window.electron.ipcRenderer.removeListener('menu:save-as', () => { void handleSaveAs(); });
+      window.electron.ipcRenderer.removeListener('menu:open', () => {
+        void handleOpenFile();
+      });
+      window.electron.ipcRenderer.removeListener('menu:save', () => {
+        void handleSave();
+      });
+      window.electron.ipcRenderer.removeListener('menu:save-as', () => {
+        void handleSaveAs();
+      });
     };
   }, [handleNewFile, handleOpenFile, handleSave, handleSaveAs, fileState.isModified]);
 
   useKeyboardShortcuts({
-    onSave: () => { void handleSave(); },
-    onSaveAs: () => { void handleSaveAs(); },
-    onOpen: () => { void handleOpenFile(); },
+    onSave: () => {
+      void handleSave();
+    },
+    onSaveAs: () => {
+      void handleSaveAs();
+    },
+    onOpen: () => {
+      void handleOpenFile();
+    },
     onNew: handleNewFile,
   });
 
@@ -150,9 +156,15 @@ export const App: React.FC = () => {
     <div className={`app ${isDark ? 'dark' : 'light'}`}>
       <Toolbar
         onNew={handleNewFile}
-        onOpen={() => { void handleOpenFile(); }}
-        onSave={() => { void handleSave(); }}
-        onSaveAs={() => { void handleSaveAs(); }}
+        onOpen={() => {
+          void handleOpenFile();
+        }}
+        onSave={() => {
+          void handleSave();
+        }}
+        onSaveAs={() => {
+          void handleSaveAs();
+        }}
         onToggleTheme={toggleTheme}
         onToggleSidebar={() => setShowSidebar(!showSidebar)}
         onToggleView={() => setActiveView(activeView === 'raw' ? 'gui' : 'raw')}
@@ -163,7 +175,7 @@ export const App: React.FC = () => {
         showSidebar={showSidebar}
         isDark={isDark}
       />
-      
+
       <div className="main-content">
         {showSidebar && (
           <Sidebar
@@ -173,7 +185,7 @@ export const App: React.FC = () => {
             schemaErrors={validationErrors}
           />
         )}
-        
+
         <div className="editor-area">
           {activeView === 'raw' ? (
             <RawEditor
@@ -215,8 +227,12 @@ export const App: React.FC = () => {
 
       {showSaveDialog && (
         <SaveDialog
-          onSave={() => { void handleSaveDialogSave(); }}
-          onDiscard={() => { void handleSaveDialogDiscard(); }}
+          onSave={() => {
+            void handleSaveDialogSave();
+          }}
+          onDiscard={() => {
+            void handleSaveDialogDiscard();
+          }}
           onCancel={handleSaveDialogCancel}
           isDark={isDark}
         />
